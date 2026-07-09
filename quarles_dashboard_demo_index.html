@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billable Hours Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f8f7f5;
+    color: #0b0b0b;
+    padding: 24px;
+    font-size: 14px;
+  }
+  .db-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .db-title { font-size: 18px; font-weight: 600; color: #0b0b0b; }
+  .db-sub { font-size: 13px; color: #52514e; margin-top: 3px; }
+  .db-period {
+    font-size: 12px;
+    color: #52514e;
+    background: #fff;
+    border: 0.5px solid #e1e0d9;
+    border-radius: 8px;
+    padding: 6px 12px;
+  }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .kpi {
+    background: #fff;
+    border-radius: 8px;
+    border: 0.5px solid #e1e0d9;
+    padding: 14px 16px;
+  }
+  .kpi-label { font-size: 11px; color: #898781; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi-value { font-size: 26px; font-weight: 600; color: #0b0b0b; line-height: 1; }
+  .kpi-delta { font-size: 12px; margin-top: 6px; }
+  .up { color: #0ca30c; }
+  .down { color: #d03b3b; }
+  .neutral { color: #898781; }
+  .charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    border: 0.5px solid #e1e0d9;
+    padding: 16px 20px;
+  }
+  .card-title { font-size: 12px; font-weight: 500; color: #52514e; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .legend { display: flex; gap: 16px; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #52514e; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .bar-track { height: 6px; background: #e1e0d9; border-radius: 3px; margin-top: 6px; }
+  .bar-fill { height: 6px; border-radius: 3px; }
+  .pg-row { display: flex; flex-direction: column; gap: 14px; }
+  .pg-item-label { display: flex; justify-content: space-between; font-size: 12px; }
+  .pg-name { color: #52514e; }
+  .pg-pct { color: #0b0b0b; font-weight: 500; }
+  .table-wrap {
+    background: #fff;
+    border-radius: 12px;
+    border: 0.5px solid #e1e0d9;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #898781;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 0.5px solid #e1e0d9;
+    background: #faf9f7;
+  }
+  td { padding: 10px 16px; color: #0b0b0b; border-bottom: 0.5px solid #e1e0d9; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #faf9f7; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .badge-green { background: #eaf3de; color: #3b6d11; }
+  .badge-amber { background: #faeeda; color: #854f0b; }
+  .badge-red { background: #fcebeb; color: #a32d2d; }
+</style>
+</head>
+<body>
+
+<div class="db-header">
+  <div>
+    <div class="db-title">Billable Hours</div>
+    <div class="db-sub">Your personal performance overview</div>
+  </div>
+  <div class="db-period">FY 2026 &middot; Period: Billing Year</div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Hours billed (YTD)</div>
+    <div class="kpi-value">1,284</div>
+    <div class="kpi-delta up">&#8593; 6.2% vs prior year</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Annual target</div>
+    <div class="kpi-value">1,900</div>
+    <div class="kpi-delta neutral">68% attained</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">This month</div>
+    <div class="kpi-value">142</div>
+    <div class="kpi-delta down">&#8595; 11 hrs vs avg</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Working collections</div>
+    <div class="kpi-value">$0</div>
+    <div class="kpi-delta neutral">+0.0% YoY</div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="card">
+    <div class="card-title">Monthly hours &mdash; current vs prior year</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2a78d6;"></div>Current year</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#b5d4f4;"></div>Prior year</div>
+    </div>
+    <div style="position: relative; width: 100%; height: 180px;">
+      <canvas id="hoursChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Attainment by practice group</div>
+    <div class="pg-row">
+      <div>
+        <div class="pg-item-label"><span class="pg-name">Litigation</span><span class="pg-pct">81%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:81%;background:#2a78d6;"></div></div>
+      </div>
+      <div>
+        <div class="pg-item-label"><span class="pg-name">Corporate</span><span class="pg-pct">74%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:74%;background:#2a78d6;"></div></div>
+      </div>
+      <div>
+        <div class="pg-item-label"><span class="pg-name">Labor &amp; Employment</span><span class="pg-pct">68%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:68%;background:#2a78d6;"></div></div>
+      </div>
+      <div>
+        <div class="pg-item-label"><span class="pg-name">Real Estate</span><span class="pg-pct">55%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:55%;background:#eda100;"></div></div>
+      </div>
+      <div>
+        <div class="pg-item-label"><span class="pg-name">Health Care</span><span class="pg-pct">42%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:42%;background:#e34948;"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Attorney</th>
+        <th>Practice group</th>
+        <th>YTD hours</th>
+        <th>Target</th>
+        <th>Attainment</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight:500;">Sarah M.</td>
+        <td style="color:#52514e;">Litigation</td>
+        <td>1,541</td><td>1,900</td><td>81%</td>
+        <td><span class="badge badge-green">On track</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:500;">James K.</td>
+        <td style="color:#52514e;">Corporate</td>
+        <td>1,406</td><td>1,900</td><td>74%</td>
+        <td><span class="badge badge-green">On track</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:500;">Dana L.</td>
+        <td style="color:#52514e;">Labor &amp; Emp.</td>
+        <td>1,292</td><td>1,900</td><td>68%</td>
+        <td><span class="badge badge-amber">Monitor</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:500;">Robert T.</td>
+        <td style="color:#52514e;">Real Estate</td>
+        <td>1,045</td><td>1,900</td><td>55%</td>
+        <td><span class="badge badge-amber">Monitor</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight:500;">Priya N.</td>
+        <td style="color:#52514e;">Health Care</td>
+        <td>798</td><td>1,900</td><td>42%</td>
+        <td><span class="badge badge-red">At risk</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+  new Chart(document.getElementById('hoursChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Current year',
+          data: [198, 174, 221, 208, 189, 142],
+          backgroundColor: '#2a78d6',
+          borderRadius: 4,
+          borderSkipped: 'bottom',
+          barPercentage: 0.6,
+          categoryPercentage: 0.7
+        },
+        {
+          label: 'Prior year',
+          data: [185, 162, 208, 195, 201, 158],
+          backgroundColor: '#b5d4f4',
+          borderRadius: 4,
+          borderSkipped: 'bottom',
+          barPercentage: 0.6,
+          categoryPercentage: 0.7
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: '#898781', font: { size: 11 } },
+          border: { color: '#e1e0d9' }
+        },
+        y: {
+          grid: { color: '#e1e0d9' },
+          ticks: { color: '#898781', font: { size: 11 }, callback: v => Math.round(v) },
+          border: { display: false }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
